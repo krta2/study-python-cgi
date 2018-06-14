@@ -1,13 +1,14 @@
 #!python
 print("Content-Type: text/html\n")
-import cgi, os, View
+import cgi, os, View, html_sanitizer
+sanitizer = html_sanitizer.Sanitizer()
  
 form = cgi.FieldStorage()
 if 'id' in form:
-    pageId = form["id"].value
+    title = pageId = form["id"].value
     description = open('data/'+pageId, 'r').read()
-    description = description.replace('<', '&lt;')
-    description = description.replace('>', '&gt;')
+    title = sanitizer.sanitize(title)
+    description = sanitizer.sanitize(description)
     update_link = '<a href="UpdateData.py?id={}">Update</a>'.format(pageId)
     delete_action = '''
         <form action="DataDeleter.py" method="post">
@@ -16,7 +17,7 @@ if 'id' in form:
         </form>
     '''.format(pageId)
 else:
-    pageId = 'Welcome'
+    title = pageId = 'Welcome'
     description = 'Hello, web'
     update_link = ''
     delete_action = ''
@@ -38,4 +39,4 @@ print('''<!doctype html>
   <p>{desc}</p>
 </body>
 </html>
-'''.format(title=pageId, desc=description, listStr=View.getList(), update_link=update_link, delete_action=delete_action))
+'''.format(title=title, desc=description, listStr=View.getList(), update_link=update_link, delete_action=delete_action))
